@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precursor · Design System Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cobalt:        #1D4ED8;
+    --cobalt-deep:   #1E3A8A;
+    --cobalt-mid:    #2563EB;
+    --cobalt-light:  #DBEAFE;
+    --cobalt-pale:   #EFF6FF;
+    --ink:           #0A0A0A;
+    --off-black:     #1A1A1A;
+    --dark-gray:     #3A3A3A;
+    --mid-gray:      #6B6B6B;
+    --light-gray:    #C4C4C4;
+    --border:        #E8E8E8;
+    --parchment:     #F7F6F4;
+    --white:         #FFFFFF;
+    --score-low:     #16A34A;
+    --score-med:     #CA8A04;
+    --score-high:    #DC2626;
+    --score-crit:    #7C3AED;
+    --font-d: 'DM Serif Display', serif;
+    --font-u: 'Inter', sans-serif;
+    --font-m: 'JetBrains Mono', monospace;
+  }
+
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--font-u); background: var(--parchment); color: var(--off-black); }
+
+  /* ── Layout ── */
+  .page { max-width: 1200px; margin: 0 auto; padding: 0 40px 120px; }
+  .section { margin-top: 80px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--cobalt);
+    border-bottom: 1px solid var(--border); padding-bottom: 12px;
+    margin-bottom: 40px;
+  }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .col { flex: 1; min-width: 200px; }
+  .on-dark { background: var(--ink); padding: 32px; border-radius: 2px; }
+  .on-cobalt { background: var(--cobalt); padding: 32px; border-radius: 2px; }
+
+  /* ── Navigation ── */
+  .nav {
+    height: 64px; background: var(--white); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo-label { font-size: 18px; font-weight: 300; color: var(--ink); letter-spacing: -0.3px; }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-link { font-size: 14px; color: var(--dark-gray); text-decoration: none; transition: color 150ms; }
+  .nav-link:hover { color: var(--cobalt); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 40px; padding: 0 20px; font-family: var(--font-u); font-size: 14px;
+    font-weight: 500; border-radius: 2px; border: none; cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+    text-decoration: none; white-space: nowrap;
+  }
+  .btn-primary { background: var(--cobalt); color: var(--white); }
+  .btn-primary:hover { background: var(--cobalt-mid); }
+  .btn-ghost { background: transparent; color: var(--cobalt); border: 1.5px solid var(--cobalt); }
+  .btn-ghost:hover { background: var(--cobalt-pale); }
+  .btn-muted { background: transparent; color: var(--mid-gray); border: 1.5px solid var(--border); }
+
+  /* ── The Cursor Mark (inline SVG) ── */
+  .mark { display: inline-block; }
+
+  /* ── Colors ── */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+  .swatch { border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+  .swatch-color { height: 64px; }
+  .swatch-info { padding: 10px 12px; background: var(--white); }
+  .swatch-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .swatch-hex { font-family: var(--font-m); font-size: 11px; color: var(--mid-gray); margin-top: 2px; }
+
+  /* ── Typography ── */
+  .type-row { margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .type-meta { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray); margin-bottom: 8px; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--white); padding: 80px 64px;
+    border: 1px solid var(--border); border-radius: 2px;
+  }
+  .hero-eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--cobalt); margin-bottom: 24px;
+  }
+  .hero-headline {
+    font-family: var(--font-d); font-size: 64px; line-height: 1.05;
+    color: var(--ink); margin-bottom: 24px; max-width: 700px;
+  }
+  .hero-body {
+    font-size: 18px; line-height: 1.6; color: var(--dark-gray);
+    max-width: 580px; margin-bottom: 40px;
+  }
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+  .search-input {
+    width: 360px; height: 48px; padding: 0 16px;
+    font-family: var(--font-u); font-size: 16px; color: var(--ink);
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 4px; outline: none; transition: border-color 150ms;
+  }
+  .search-input:focus { border-color: var(--cobalt); }
+  .search-input::placeholder { color: var(--mid-gray); }
+
+  /* ── Score Cards ── */
+  .score-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 2px;
+    padding: 24px; flex: 1; min-width: 200px;
+  }
+  .score-card.low    { border-left: 4px solid var(--score-low); }
+  .score-card.medium { border-left: 4px solid var(--score-med); }
+  .score-card.high   { border-left: 4px solid var(--score-high); }
+  .score-card.critical { border-left: 4px solid var(--score-crit); }
+  .card-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray); margin-bottom: 12px; }
+  .card-title { font-size: 18px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: var(--mid-gray); margin-bottom: 20px; }
+  .card-score { font-family: var(--font-m); font-size: 56px; font-weight: 500; line-height: 1; }
+  .card-denom { font-family: var(--font-u); font-size: 16px; font-weight: 300; color: var(--light-gray); }
+  .score-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 2px; }
+  .score-pct { font-size: 13px; color: var(--mid-gray); font-family: var(--font-m); margin-top: 8px; }
+  .c-low    { color: var(--score-low); }
+  .c-med    { color: var(--score-med); }
+  .c-high   { color: var(--score-high); }
+  .c-crit   { color: var(--score-crit); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex; align-items: center; padding: 2px 7px;
+    border-radius: 4px; font-family: var(--font-m); font-size: 13px; font-weight: 500;
+  }
+  .badge.low      { background: #F0FDF4; color: var(--score-low); }
+  .badge.medium   { background: #FEFCE8; color: var(--score-med); }
+  .badge.high     { background: #FEF2F2; color: var(--score-high); }
+  .badge.critical { background: #F5F3FF; color: var(--score-crit); }
+
+  /* ── Index Table ── */
+  .index-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--border); }
+  .index-table th {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--mid-gray); text-align: left; padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .index-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--off-black); }
+  .index-table tr:last-child td { border-bottom: none; }
+  .index-table tr:hover td { background: var(--parchment); }
+  .td-occupation { font-weight: 500; color: var(--ink); }
+  .td-sector { color: var(--mid-gray); }
+  .td-score { font-family: var(--font-m); font-weight: 400; }
+  .td-trend { font-family: var(--font-m); font-size: 13px; }
+  .trend-up   { color: var(--score-low); }
+  .trend-flat { color: var(--mid-gray); }
+  .trend-down { color: var(--score-high); }
+
+  /* ── Dark Hero ── */
+  .dark-hero {
+    background: var(--ink); padding: 80px 64px; border-radius: 2px;
+  }
+  .dark-hero .hero-eyebrow { color: var(--cobalt); }
+  .dark-hero .hero-headline { color: var(--white); font-style: italic; }
+  .dark-hero .hero-body { color: var(--light-gray); }
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav class="nav">
+  <a class="nav-logo" href="#">
+    <!-- Cursor Mark · Cobalt -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="28">
+      <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+      <rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/>
+      <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+    </svg>
+    <span class="nav-logo-label">Precursor</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#">AI Exposure Index</a>
+    <a class="nav-link" href="#">Research</a>
+    <a class="nav-link" href="#">About</a>
+    <a class="btn btn-primary" href="#">Request Access</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ── LOGO SYSTEM ── -->
+  <div class="section">
+    <div class="section-label">Logo System</div>
+    <div class="row">
+      <div style="background: var(--white); padding: 40px; display: flex; align-items: center; gap: 16px; border: 1px solid var(--border); flex: 1;">
+        <!-- Mark only -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="48">
+          <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+          <rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/>
+          <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+        </svg>
+        <div style="width: 1px; height: 48px; background: var(--border);"></div>
+        <!-- Wordmark -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="32">
+            <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+            <rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/>
+            <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+          </svg>
+          <span style="font-size: 22px; font-weight: 300; color: var(--ink); letter-spacing: -0.4px;">Precursor</span>
+        </div>
+        <div style="width: 1px; height: 48px; background: var(--border);"></div>
+        <!-- Sub-brand line -->
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height: 24px; height="24">
+              <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+              <rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/>
+              <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+            </svg>
+            <span style="font-size: 16px; font-weight: 300; color: var(--ink);">Precursor</span>
+          </div>
+          <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cobalt); margin-top: 4px; padding-left: 34px;">AI Exposure Index™</div>
+        </div>
+      </div>
+      <div class="on-dark" style="flex: 1; display: flex; align-items: center; gap: 40px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="48">
+          <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+          <rect x="13" y="5" width="6" height="38" fill="#FFFFFF"/>
+          <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+        </svg>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="32">
+            <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+            <rect x="13" y="5" width="6" height="38" fill="#FFFFFF"/>
+            <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+          </svg>
+          <span style="font-size: 22px; font-weight: 300; color: #FFFFFF; letter-spacing: -0.4px;">Precursor</span>
+        </div>
+      </div>
+      <div class="on-cobalt" style="flex: 1; display: flex; align-items: center; gap: 40px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="48">
+          <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+          <rect x="13" y="5" width="6" height="38" fill="#FFFFFF"/>
+          <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+        </svg>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="32">
+            <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+            <rect x="13" y="5" width="6" height="38" fill="#FFFFFF"/>
+            <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#FFFFFF"/>
+          </svg>
+          <span style="font-size: 22px; font-weight: 300; color: #FFFFFF; letter-spacing: -0.4px;">Precursor</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COLOR PALETTE ── -->
+  <div class="section">
+    <div class="section-label">Color System</div>
+    <div style="margin-bottom: 24px;">
+      <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid-gray); margin-bottom: 16px;">Brand — Cobalt</div>
+      <div class="swatch-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="swatch"><div class="swatch-color" style="background: #1E3A8A;"></div><div class="swatch-info"><div class="swatch-name">Cobalt Deep</div><div class="swatch-hex">#1E3A8A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #1D4ED8;"></div><div class="swatch-info"><div class="swatch-name">Cobalt</div><div class="swatch-hex">#1D4ED8</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #2563EB;"></div><div class="swatch-info"><div class="swatch-name">Cobalt Mid</div><div class="swatch-hex">#2563EB</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #DBEAFE;"></div><div class="swatch-info"><div class="swatch-name">Cobalt Light</div><div class="swatch-hex">#DBEAFE</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #EFF6FF;"></div><div class="swatch-info"><div class="swatch-name">Cobalt Pale</div><div class="swatch-hex">#EFF6FF</div></div></div>
+      </div>
+    </div>
+    <div style="margin-bottom: 24px;">
+      <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid-gray); margin-bottom: 16px;">Neutrals</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background: #0A0A0A;"></div><div class="swatch-info"><div class="swatch-name">Ink</div><div class="swatch-hex">#0A0A0A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #1A1A1A;"></div><div class="swatch-info"><div class="swatch-name">Off-Black</div><div class="swatch-hex">#1A1A1A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #3A3A3A;"></div><div class="swatch-info"><div class="swatch-name">Dark Gray</div><div class="swatch-hex">#3A3A3A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #6B6B6B;"></div><div class="swatch-info"><div class="swatch-name">Mid Gray</div><div class="swatch-hex">#6B6B6B</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #C4C4C4;"></div><div class="swatch-info"><div class="swatch-name">Light Gray</div><div class="swatch-hex">#C4C4C4</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #E8E8E8;"></div><div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-hex">#E8E8E8</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #F7F6F4;"></div><div class="swatch-info"><div class="swatch-name">Parchment</div><div class="swatch-hex">#F7F6F4</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #FFFFFF; border: 1px solid #E8E8E8;"></div><div class="swatch-info"><div class="swatch-name">White</div><div class="swatch-hex">#FFFFFF</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid-gray); margin-bottom: 16px;">Score Semantic Colors</div>
+      <div class="swatch-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="swatch"><div class="swatch-color" style="background: #16A34A;"></div><div class="swatch-info"><div class="swatch-name">Low · 0–30</div><div class="swatch-hex">#16A34A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #CA8A04;"></div><div class="swatch-info"><div class="swatch-name">Medium · 31–60</div><div class="swatch-hex">#CA8A04</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #DC2626;"></div><div class="swatch-info"><div class="swatch-name">High · 61–84</div><div class="swatch-hex">#DC2626</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background: #7C3AED;"></div><div class="swatch-info"><div class="swatch-name">Critical · 85–100</div><div class="swatch-hex">#7C3AED</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TYPOGRAPHY ── -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div class="type-row">
+      <div class="type-meta">DM Serif Display · Hero Headline</div>
+      <div style="font-family: var(--font-d); font-size: 64px; line-height: 1.05; color: var(--ink);">How exposed is your profession to AI?</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">DM Serif Display Italic · Brand Statement</div>
+      <div style="font-family: var(--font-d); font-style: italic; font-size: 48px; line-height: 1.1; color: var(--ink);">Precision over prediction.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Inter 300 · Wordmark / Logotype</div>
+      <div style="font-family: var(--font-u); font-size: 32px; font-weight: 300; letter-spacing: -0.5px; color: var(--ink);">Precursor</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Inter 500 · Section Title</div>
+      <div style="font-family: var(--font-u); font-size: 24px; font-weight: 500; color: var(--ink);">AI Exposure Index™ Methodology</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Inter 400 · Body (18px)</div>
+      <div style="font-family: var(--font-u); font-size: 18px; line-height: 1.6; color: var(--dark-gray); max-width: 640px;">The AI Exposure Score™ measures the degree to which a given occupation's core tasks can be automated, augmented, or displaced by current and near-future AI systems. Scores are derived from task-level analysis across 900+ occupational profiles.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Inter 600 Uppercase · Eyebrow / Label</div>
+      <div style="font-family: var(--font-u); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cobalt);">Precursor · AI Exposure Index™</div>
+    </div>
+    <div class="type-row" style="border-bottom: none;">
+      <div class="type-meta">JetBrains Mono · Scores & Data</div>
+      <div style="display: flex; gap: 48px; align-items: baseline;">
+        <span style="font-family: var(--font-m); font-size: 96px; font-weight: 500; line-height: 1; color: var(--score-high);">74</span>
+        <span style="font-family: var(--font-m); font-size: 48px; font-weight: 500; color: var(--score-med);">43</span>
+        <span style="font-family: var(--font-m); font-size: 24px; color: var(--score-low);">28</span>
+        <span style="font-family: var(--font-m); font-size: 14px; color: var(--score-crit);">92</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HERO SECTION ── -->
+  <div class="section">
+    <div class="section-label">Hero · Light</div>
+    <div class="hero">
+      <div class="hero-eyebrow">Precursor · AI Exposure Index™</div>
+      <h1 class="hero-headline">How exposed is your<br>profession to AI?</h1>
+      <p class="hero-body">The AI Exposure Index™ scores every occupation 0–100 based on task automation risk, augmentation potential, and displacement probability.</p>
+      <div class="hero-actions">
+        <input class="search-input" type="text" placeholder="Search any occupation...">
+        <a class="btn btn-primary" href="#">Explore the Index →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Hero · Dark</div>
+    <div class="dark-hero">
+      <div class="hero-eyebrow">Precursor · AI Exposure Index™</div>
+      <h1 class="hero-headline" style="font-family: var(--font-d); font-size: 64px; line-height: 1.05; color: var(--white); font-style: italic; margin-bottom: 24px; max-width: 700px;">Every occupation.<br>One number.</h1>
+      <p class="hero-body" style="font-size: 18px; line-height: 1.6; color: #C4C4C4; max-width: 580px; margin-bottom: 40px;">The AI Exposure Index™ scores every occupation 0–100. No speculation. No hype. Just the data.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#">Explore the Index →</a>
+        <a class="btn" href="#" style="background: transparent; color: #C4C4C4; border: 1.5px solid #3A3A3A;">View Methodology</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCORE CARDS ── -->
+  <div class="section">
+    <div class="section-label">Score Cards</div>
+    <div class="row">
+      <!-- High -->
+      <div class="score-card high">
+        <div class="card-eyebrow">Occupation</div>
+        <div class="card-title">Software Engineer</div>
+        <div class="card-sub">Technology · Engineering</div>
+        <div><span class="card-score c-high">74</span><span class="card-denom"> /100</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 74%; background: var(--score-high);"></div></div>
+        <div class="score-pct">74 · High Exposure</div>
+      </div>
+      <!-- Medium -->
+      <div class="score-card medium">
+        <div class="card-eyebrow">Occupation</div>
+        <div class="card-title">Financial Analyst</div>
+        <div class="card-sub">Finance · Quantitative</div>
+        <div><span class="card-score c-med">52</span><span class="card-denom"> /100</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 52%; background: var(--score-med);"></div></div>
+        <div class="score-pct">52 · Moderate Exposure</div>
+      </div>
+      <!-- Low -->
+      <div class="score-card low">
+        <div class="card-eyebrow">Occupation</div>
+        <div class="card-title">Registered Nurse</div>
+        <div class="card-sub">Healthcare · Clinical</div>
+        <div><span class="card-score c-low">24</span><span class="card-denom"> /100</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 24%; background: var(--score-low);"></div></div>
+        <div class="score-pct">24 · Low Exposure</div>
+      </div>
+      <!-- Critical -->
+      <div class="score-card critical">
+        <div class="card-eyebrow">Occupation</div>
+        <div class="card-title">Data Entry Clerk</div>
+        <div class="card-sub">Administrative · Clerical</div>
+        <div><span class="card-score c-crit">91</span><span class="card-denom"> /100</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 91%; background: var(--score-crit);"></div></div>
+        <div class="score-pct">91 · Critical Exposure</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCORE BADGES ── -->
+  <div class="section">
+    <div class="section-label">Score Badges</div>
+    <div style="display: flex; gap: 12px; align-items: center; background: var(--white); padding: 32px; border: 1px solid var(--border);">
+      <span class="badge low">24</span>
+      <span class="badge medium">52</span>
+      <span class="badge high">74</span>
+      <span class="badge critical">91</span>
+      <div style="width: 1px; height: 32px; background: var(--border);"></div>
+      <div style="font-size: 14px; color: var(--dark-gray);">Inline badge usage: &nbsp;</div>
+      <span style="font-size: 14px; color: var(--off-black);">Software Engineer</span>
+      <span class="badge high">74</span>
+      <span style="font-size: 14px; color: var(--mid-gray);">is high-exposure for automation.</span>
+    </div>
+  </div>
+
+  <!-- ── INDEX TABLE ── -->
+  <div class="section">
+    <div class="section-label">AI Exposure Index · Table View</div>
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th>Occupation</th>
+          <th>Sector</th>
+          <th>Score</th>
+          <th>Risk Level</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-occupation">Software Engineer</td>
+          <td class="td-sector">Technology</td>
+          <td class="td-score c-high">74</td>
+          <td><span class="badge high">High</span></td>
+          <td class="td-trend trend-up">↑ +3</td>
+        </tr>
+        <tr>
+          <td class="td-occupation">Data Analyst</td>
+          <td class="td-sector">Finance</td>
+          <td class="td-score c-crit">81</td>
+          <td><span class="badge critical">Critical</span></td>
+          <td class="td-trend trend-flat">→ 0</td>
+        </tr>
+        <tr>
+          <td class="td-occupation">Registered Nurse</td>
+          <td class="td-sector">Healthcare</td>
+          <td class="td-score c-low">24</td>
+          <td><span class="badge low">Low</span></td>
+          <td class="td-trend trend-down">↓ −2</td>
+        </tr>
+        <tr>
+          <td class="td-occupation">Marketing Manager</td>
+          <td class="td-sector">Marketing</td>
+          <td class="td-score c-med">58</td>
+          <td><span class="badge medium">Medium</span></td>
+          <td class="td-trend trend-up">↑ +5</td>
+        </tr>
+        <tr>
+          <td class="td-occupation">Paralegal</td>
+          <td class="td-sector">Legal</td>
+          <td class="td-score c-high">69</td>
+          <td><span class="badge high">High</span></td>
+          <td class="td-trend trend-up">↑ +8</td>
+        </tr>
+        <tr>
+          <td class="td-occupation">Plumber</td>
+          <td class="td-sector">Trades</td>
+          <td class="td-score c-low">11</td>
+          <td><span class="badge low">Low</span></td>
+          <td class="td-trend trend-flat">→ 0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── BUTTONS ── -->
+  <div class="section">
+    <div class="section-label">Buttons</div>
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: var(--white); padding: 40px; border: 1px solid var(--border);">
+      <a class="btn btn-primary" href="#">Primary Button</a>
+      <a class="btn btn-ghost" href="#">Ghost Button</a>
+      <a class="btn btn-muted" href="#">Muted Button</a>
+      <a class="btn btn-primary" href="#" style="height: 32px; font-size: 13px; padding: 0 14px;">Small</a>
+      <a class="btn btn-primary" href="#" style="height: 48px; font-size: 15px; padding: 0 28px;">Large</a>
+    </div>
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: var(--ink); padding: 40px; margin-top: 1px;">
+      <a class="btn btn-primary" href="#">Primary Button</a>
+      <a class="btn" href="#" style="background: transparent; color: #FFFFFF; border: 1.5px solid #3A3A3A;">Outline</a>
+      <a class="btn" href="#" style="background: transparent; color: #C4C4C4;">Text Only</a>
+    </div>
+  </div>
+
+  <!-- ── INPUTS ── -->
+  <div class="section">
+    <div class="section-label">Input Fields</div>
+    <div style="background: var(--white); padding: 40px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 16px; max-width: 480px;">
+      <input style="width: 100%; height: 48px; padding: 0 16px; font-family: var(--font-u); font-size: 16px; color: var(--ink); border: 1.5px solid var(--border); border-radius: 4px; outline: none;" type="text" placeholder="Search any occupation...">
+      <input style="width: 100%; height: 48px; padding: 0 16px; font-family: var(--font-u); font-size: 16px; color: var(--ink); border: 1.5px solid var(--cobalt); border-radius: 4px; outline: none;" type="text" value="Software Engineer">
+      <input style="width: 100%; height: 48px; padding: 0 16px; font-family: var(--font-u); font-size: 16px; color: var(--light-gray); border: 1.5px solid var(--border); border-radius: 4px; outline: none; background: var(--parchment);" type="text" placeholder="Disabled field" disabled>
+    </div>
+  </div>
+
+  <!-- ── MARK SCALES ── -->
+  <div class="section">
+    <div class="section-label">Mark · Scale Test</div>
+    <div style="background: var(--white); padding: 40px; border: 1px solid var(--border); display: flex; align-items: flex-end; gap: 32px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="12"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="20"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="32"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="48"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="80"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="128"><rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/><rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/><rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/></svg>
+      <div style="width: 1px; height: 128px; background: var(--border);"></div>
+      <span style="font-size: 11px; color: var(--mid-gray); font-family: var(--font-m);">12 · 20 · 32 · 48 · 80 · 128px</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div style="border-top: 1px solid var(--border); margin-top: 80px; padding: 40px; display: flex; align-items: center; justify-content: space-between; background: var(--white);">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" fill="none" height="20">
+      <rect x="0" y="0" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+      <rect x="13" y="5" width="6" height="38" fill="#1D4ED8"/>
+      <rect x="0" y="43" width="32" height="5" rx="0.5" fill="#1D4ED8"/>
+    </svg>
+    <span style="font-size: 15px; font-weight: 300; color: var(--ink);">Precursor</span>
+  </div>
+  <div style="font-size: 12px; color: var(--mid-gray); font-family: var(--font-m);">Brand System v1.0 · AI Exposure Index™</div>
+</div>
+
+</body>
+</html>

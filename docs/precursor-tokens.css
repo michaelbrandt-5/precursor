@@ -1,0 +1,401 @@
+/**
+ * Precursor · Design Tokens
+ * AI Exposure Index™ Brand System v1.0
+ *
+ * Usage: Import this file at the root of your CSS, or copy into your
+ * global stylesheet. All tokens are available as CSS custom properties.
+ *
+ * @import './precursor-tokens.css';
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+
+  /* ─────────────────────────────────────────────
+   * COLOR · Brand
+   * ───────────────────────────────────────────── */
+
+  --color-cobalt:       #1D4ED8;  /* Primary brand — CTAs, marks, links */
+  --color-cobalt-deep:  #1E3A8A;  /* Dark mode primary, pressed states */
+  --color-cobalt-mid:   #2563EB;  /* Hover state */
+  --color-cobalt-light: #DBEAFE;  /* Tinted backgrounds, highlights */
+  --color-cobalt-pale:  #EFF6FF;  /* Subtlest surface */
+
+  /* ─────────────────────────────────────────────
+   * COLOR · Neutrals
+   * ───────────────────────────────────────────── */
+
+  --color-ink:          #0A0A0A;  /* Headings, high-contrast text */
+  --color-off-black:    #1A1A1A;  /* Body text */
+  --color-dark-gray:    #3A3A3A;  /* Secondary text */
+  --color-mid-gray:     #6B6B6B;  /* Captions, placeholders, disabled */
+  --color-light-gray:   #C4C4C4;  /* Disabled borders, skeleton */
+  --color-border:       #E8E8E8;  /* Default dividers and borders */
+  --color-parchment:    #F7F6F4;  /* Page background */
+  --color-white:        #FFFFFF;  /* Cards, panels */
+
+  /* ─────────────────────────────────────────────
+   * COLOR · AI Exposure Score Scale
+   * ───────────────────────────────────────────── */
+
+  --score-low:          #16A34A;  /* 0–30  · Low exposure */
+  --score-low-bg:       #F0FDF4;
+  --score-medium:       #CA8A04;  /* 31–60 · Moderate exposure */
+  --score-medium-bg:    #FEFCE8;
+  --score-high:         #DC2626;  /* 61–84 · High exposure */
+  --score-high-bg:      #FEF2F2;
+  --score-critical:     #7C3AED;  /* 85–100 · Critical exposure */
+  --score-critical-bg:  #F5F3FF;
+
+  /* ─────────────────────────────────────────────
+   * TYPOGRAPHY · Font Families
+   * ───────────────────────────────────────────── */
+
+  --font-display:  'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-ui:       'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:     'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* ─────────────────────────────────────────────
+   * TYPOGRAPHY · Scale
+   * ───────────────────────────────────────────── */
+
+  /* Display (DM Serif Display) */
+  --text-display-xl-size:    72px;
+  --text-display-xl-line:    1.05;
+  --text-display-lg-size:    48px;
+  --text-display-lg-line:    1.1;
+  --text-display-md-size:    36px;
+  --text-display-md-line:    1.15;
+
+  /* Titles (Inter) */
+  --text-title-lg-size:      24px;
+  --text-title-lg-line:      1.3;
+  --text-title-lg-weight:    600;
+  --text-title-md-size:      18px;
+  --text-title-md-line:      1.4;
+  --text-title-md-weight:    500;
+  --text-title-sm-size:      12px;
+  --text-title-sm-line:      1.4;
+  --text-title-sm-weight:    600;
+  --text-title-sm-tracking:  0.08em;
+
+  /* Body (Inter) */
+  --text-body-lg-size:       18px;
+  --text-body-lg-line:       1.6;
+  --text-body-md-size:       16px;
+  --text-body-md-line:       1.55;
+  --text-body-sm-size:       14px;
+  --text-body-sm-line:       1.5;
+  --text-body-xs-size:       12px;
+  --text-body-xs-line:       1.4;
+
+  /* Score / Data (JetBrains Mono) */
+  --text-score-xl-size:      96px;
+  --text-score-xl-line:      1.0;
+  --text-score-xl-weight:    500;
+  --text-score-lg-size:      48px;
+  --text-score-lg-line:      1.0;
+  --text-score-lg-weight:    500;
+  --text-score-md-size:      24px;
+  --text-score-md-line:      1.0;
+  --text-score-md-weight:    400;
+  --text-score-sm-size:      14px;
+  --text-score-sm-line:      1.0;
+  --text-score-sm-weight:    400;
+
+  /* ─────────────────────────────────────────────
+   * SPACING · 8px base unit
+   * ───────────────────────────────────────────── */
+
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32: 128px;
+
+  /* ─────────────────────────────────────────────
+   * BORDERS
+   * ───────────────────────────────────────────── */
+
+  --border-default:    1px solid var(--color-border);
+  --border-focus:      1.5px solid var(--color-cobalt);
+  --border-strong:     1px solid var(--color-light-gray);
+
+  --radius-sm:   2px;  /* Cards, buttons */
+  --radius-md:   4px;  /* Badges, tags, inputs */
+  --radius-none: 0px;  /* Tables, dividers */
+
+  /* ─────────────────────────────────────────────
+   * SHADOWS
+   * ───────────────────────────────────────────── */
+
+  --shadow-float: 0 4px 16px rgba(0,0,0,0.08);  /* Dropdowns, tooltips */
+  --shadow-none:  none;                           /* Default — use borders */
+
+  /* ─────────────────────────────────────────────
+   * MOTION
+   * ───────────────────────────────────────────── */
+
+  --ease-ui:      150ms ease-out;  /* Hover, active, focus */
+  --ease-page:    300ms ease-out;  /* Entrance, section reveals */
+  --ease-score:   600ms ease-out;  /* Score counter animation */
+
+  /* ─────────────────────────────────────────────
+   * LAYOUT
+   * ───────────────────────────────────────────── */
+
+  --width-container:   1200px;  /* Max site width */
+  --width-content:      720px;  /* Readable prose column */
+  --width-sidebar:      280px;  /* Index sidebar */
+  --gutter-mobile:       24px;
+  --gutter-desktop:      40px;
+  --nav-height:          64px;
+}
+
+/* ─────────────────────────────────────────────────────
+ * BASE RESETS & GLOBALS
+ * ───────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-line);
+  color: var(--color-off-black);
+  background-color: var(--color-parchment);
+}
+
+/* ─────────────────────────────────────────────────────
+ * UTILITY CLASSES
+ * ───────────────────────────────────────────────────── */
+
+/* Typography */
+.text-display  { font-family: var(--font-display); }
+.text-display-italic { font-family: var(--font-display); font-style: italic; }
+.text-mono     { font-family: var(--font-mono); }
+.text-eyebrow  {
+  font-family: var(--font-ui);
+  font-size: var(--text-title-sm-size);
+  font-weight: var(--text-title-sm-weight);
+  letter-spacing: var(--text-title-sm-tracking);
+  text-transform: uppercase;
+  color: var(--color-mid-gray);
+}
+.text-eyebrow-cobalt {
+  font-family: var(--font-ui);
+  font-size: var(--text-title-sm-size);
+  font-weight: var(--text-title-sm-weight);
+  letter-spacing: var(--text-title-sm-tracking);
+  text-transform: uppercase;
+  color: var(--color-cobalt);
+}
+
+/* Score */
+.score { font-family: var(--font-mono); font-weight: 500; }
+.score-low      { color: var(--score-low); }
+.score-medium   { color: var(--score-medium); }
+.score-high     { color: var(--score-high); }
+.score-critical { color: var(--score-critical); }
+
+/* Layout */
+.container {
+  width: 100%;
+  max-width: var(--width-container);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter-desktop);
+  padding-right: var(--gutter-desktop);
+}
+
+/* ─────────────────────────────────────────────────────
+ * COMPONENTS
+ * ───────────────────────────────────────────────────── */
+
+/* Navigation */
+.nav {
+  height: var(--nav-height);
+  background: var(--color-white);
+  border-bottom: var(--border-default);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Logo Mark (inline SVG wrapper) */
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+}
+.logo-mark svg {
+  height: 28px;
+  width: auto;
+}
+.logo-mark-label {
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--color-ink);
+  letter-spacing: -0.3px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 var(--space-5);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background var(--ease-ui), color var(--ease-ui), border-color var(--ease-ui);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--color-cobalt);
+  color: var(--color-white);
+}
+.btn-primary:hover {
+  background: var(--color-cobalt-mid);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-cobalt);
+  border: 1.5px solid var(--color-cobalt);
+}
+.btn-ghost:hover {
+  background: var(--color-cobalt-pale);
+}
+.btn-muted {
+  background: transparent;
+  color: var(--color-mid-gray);
+  border: 1.5px solid var(--color-border);
+}
+
+/* Score Badge */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+.score-badge-low      { background: var(--score-low-bg);      color: var(--score-low); }
+.score-badge-medium   { background: var(--score-medium-bg);   color: var(--score-medium); }
+.score-badge-high     { background: var(--score-high-bg);     color: var(--score-high); }
+.score-badge-critical { background: var(--score-critical-bg); color: var(--score-critical); }
+
+/* Score Card */
+.score-card {
+  background: var(--color-white);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-6);
+}
+.score-card-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-score-lg-size);
+  font-weight: var(--text-score-lg-weight);
+  line-height: 1;
+}
+.score-card-denom {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--color-light-gray);
+}
+
+/* Score Progress Bar */
+.score-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width var(--ease-score);
+}
+
+/* Card Score Accent (left border) */
+.score-card-low      { border-left: 4px solid var(--score-low); }
+.score-card-medium   { border-left: 4px solid var(--score-medium); }
+.score-card-high     { border-left: 4px solid var(--score-high); }
+.score-card-critical { border-left: 4px solid var(--score-critical); }
+
+/* Input */
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-4);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--ease-ui);
+}
+.input::placeholder {
+  color: var(--color-mid-gray);
+}
+.input:focus {
+  border: var(--border-focus);
+}
+
+/* ─────────────────────────────────────────────────────
+ * DARK MODE
+ * Opt-in with [data-theme="dark"] on <html> or <body>
+ * ───────────────────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --color-parchment:   #0A0A0A;
+  --color-white:       #1A1A1A;
+  --color-ink:         #FFFFFF;
+  --color-off-black:   #F0F0F0;
+  --color-dark-gray:   #C4C4C4;
+  --color-mid-gray:    #6B6B6B;
+  --color-border:      #2A2A2A;
+  --color-light-gray:  #3A3A3A;
+
+  --color-cobalt:      #3B72F5;
+  --color-cobalt-mid:  #4D82FF;
+  --color-cobalt-deep: #1D4ED8;
+  --color-cobalt-light:#1E3A8A;
+  --color-cobalt-pale: #162248;
+}
