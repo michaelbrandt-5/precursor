@@ -1,12 +1,29 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Logo } from "@/components/brand/Logo";
+import { signInWithGoogle } from "@/lib/actions/auth";
 
 export const metadata: Metadata = {
   title: "Sign in",
 };
 
-export default function SignInPage() {
+type SearchParams = Promise<{ error?: string; next?: string }>;
+
+function errorMessage(code?: string): string | null {
+  if (!code) return null;
+  if (code === "auth_callback_failed") return "Sign-in was interrupted. Please try again.";
+  if (code === "oauth_failed") return "Couldn't reach Google. Please try again.";
+  return code;
+}
+
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+  const error = errorMessage(params.error);
+
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 bg-parchment">
       <div className="w-full max-w-[420px] bg-white border border-hairline rounded-[var(--radius-brand-sm)] p-10">
@@ -21,18 +38,25 @@ export default function SignInPage() {
           Access your AI Exposure Score and the full index.
         </p>
 
-        <div className="mt-8">
+        {error && (
+          <p
+            role="alert"
+            className="mt-6 text-[13px] text-score-high bg-score-high-bg px-3 py-2 rounded-[2px] text-center"
+          >
+            {error}
+          </p>
+        )}
+
+        <form action={signInWithGoogle} className="mt-8">
+          {params.next && <input type="hidden" name="next" value={params.next} />}
           <button
-            disabled
-            className="w-full h-11 flex items-center justify-center gap-3 bg-white text-ink border border-hairline rounded-[var(--radius-brand-sm)] text-[14px] font-medium hover:border-light-gray transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            type="submit"
+            className="w-full h-11 flex items-center justify-center gap-3 bg-white text-ink border border-hairline rounded-[var(--radius-brand-sm)] text-[14px] font-medium hover:border-light-gray transition-colors"
           >
             <GoogleIcon />
             Continue with Google
           </button>
-          <p className="mt-4 text-[12px] text-mid-gray text-center">
-            Sign-in activates in the next build step (Supabase + Google OAuth).
-          </p>
-        </div>
+        </form>
 
         <p className="mt-10 text-[12px] text-mid-gray text-center leading-relaxed">
           By continuing you agree to our{" "}
