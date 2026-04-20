@@ -28,6 +28,12 @@ export function AppNav({ user }: { user: User }) {
           >
             Index
           </Link>
+          <Link
+            href="/settings"
+            className="text-dark-gray hover:text-cobalt transition-colors"
+          >
+            Settings
+          </Link>
         </nav>
 
         <div className="flex items-center gap-6">

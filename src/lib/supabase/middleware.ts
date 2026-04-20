@@ -13,12 +13,26 @@ const GATED_PREFIXES = [
 
 const AUTH_ONLY_PATHS = ["/sign-in"];
 
+// Paths that authed users can hit before they've completed onboarding.
+// Everything else in (app) redirects to /onboarding.
+const PRE_ONBOARDING_ALLOWED = [
+  "/onboarding",
+  "/auth/callback",
+  "/settings", // let users sign out / manage account even mid-onboarding
+];
+
 function isGated(pathname: string): boolean {
   return GATED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 function isAuthOnly(pathname: string): boolean {
   return AUTH_ONLY_PATHS.includes(pathname);
+}
+
+function isPreOnboardingOK(pathname: string): boolean {
+  return PRE_ONBOARDING_ALLOWED.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
 }
 
 export async function updateSession(request: NextRequest) {
@@ -46,7 +60,6 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: Do not place any code between createServerClient and getUser().
-  // The Supabase docs warn this can desync sessions.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -64,6 +77,22 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Onboarding gate — authed users who haven't completed onboarding get sent
+  // to /onboarding when accessing the rest of the app.
+  if (user && isGated(pathname) && !isPreOnboardingOK(pathname)) {
+    const { data: userRow } = await supabase
+      .from("users")
+      .select("onboarded_at")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!userRow?.onboarded_at) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

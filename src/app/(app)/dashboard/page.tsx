@@ -1,52 +1,120 @@
+import Link from "next/link";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getDashboardData } from "@/lib/data/user";
+import { computePersonalScore } from "@/lib/scoring";
+import {
+  ScoreNumber,
+  ScoreBandLabel,
+} from "@/components/score/ScoreNumber";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const data = await getDashboardData();
+  if (!data) redirect("/sign-in");
 
-  const name =
-    (user?.user_metadata?.full_name as string | undefined) ??
-    (user?.user_metadata?.name as string | undefined) ??
-    user?.email ??
-    "there";
+  const { user, profile, profession, latestScore } = data;
+
+  // Not onboarded yet → send them to onboarding
+  if (!user.onboarded_at || !profession || !profile) redirect("/onboarding");
+
+  const firstName =
+    (user.display_name ?? "").split(" ")[0] || "there";
+
+  // Re-derive the score rationale (not stored — small, deterministic)
+  const scoreDetail = computePersonalScore({
+    baseline: profession.baseline_score ?? 50,
+    seniority: profile.seniority,
+    executionTimePct: profile.execution_time_pct,
+    aiFamiliarity:
+      (profile.skill_inputs as { ai_familiarity?: string })?.ai_familiarity ??
+      null,
+    industryVertical: profile.industry_vertical,
+  });
+
+  const personalScore = latestScore?.personal_score ?? scoreDetail.personal;
+  const baselineScore = profession.baseline_score ?? 50;
+  const delta = personalScore - baselineScore;
 
   return (
-    <div className="mx-auto max-w-[var(--container-app)] px-6 md:px-10 py-20">
-      <p className="eyebrow eyebrow-cobalt mb-4">Dashboard</p>
-      <h1 className="font-display text-[40px] leading-[1.1] text-ink">
-        Welcome, {name}.
+    <div className="mx-auto max-w-[var(--container-app)] px-6 md:px-10 py-12">
+      <p className="eyebrow eyebrow-cobalt mb-3">Dashboard</p>
+      <h1 className="font-display text-[36px] md:text-[44px] leading-[1.1] text-ink">
+        Welcome back, {firstName}.
       </h1>
-      <p className="mt-6 text-[16px] text-dark-gray max-w-[600px] leading-[1.65]">
-        You&apos;re signed in. Onboarding, your AI Exposure Score, and the full
-        index arrive in the next build step. For now, this page is the proof
-        that auth works end-to-end.
-      </p>
 
-      <section className="mt-12 border border-hairline bg-white rounded-[var(--radius-brand-sm)] p-6">
-        <p className="eyebrow mb-3">Session</p>
-        <dl className="text-[14px] space-y-2">
-          <div className="flex gap-4">
-            <dt className="w-32 text-mid-gray">User ID</dt>
-            <dd className="font-mono text-ink">{user?.id}</dd>
+      {/* Score hero */}
+      <section className="mt-10 grid md:grid-cols-[1fr_1fr] gap-8">
+        {/* Personal score */}
+        <div className="bg-white border border-hairline rounded-[var(--radius-brand-sm)] p-8">
+          <p className="eyebrow mb-3">Your AI Exposure Score™</p>
+          <ScoreNumber value={personalScore} size="xl" showDenominator />
+          <div className="mt-3">
+            <ScoreBandLabel value={personalScore} />
           </div>
-          <div className="flex gap-4">
-            <dt className="w-32 text-mid-gray">Email</dt>
-            <dd className="text-ink">{user?.email}</dd>
+          <p className="mt-4 text-[14px] text-dark-gray">
+            {delta === 0
+              ? "Your score matches the profession baseline."
+              : delta > 0
+                ? `Your role is ${delta} point${delta === 1 ? "" : "s"} more exposed than the ${profession.title} average.`
+                : `Your role is ${Math.abs(delta)} point${Math.abs(delta) === 1 ? "" : "s"} less exposed than the ${profession.title} average.`}
+          </p>
+        </div>
+
+        {/* Baseline + delta */}
+        <div className="bg-parchment border border-hairline rounded-[var(--radius-brand-sm)] p-8">
+          <p className="eyebrow mb-3">Profession baseline</p>
+          <Link
+            href={`/profession/${profession.slug}`}
+            className="inline-block font-display text-[20px] text-ink hover:text-cobalt transition-colors"
+          >
+            {profession.title} →
+          </Link>
+          <div className="mt-4">
+            <ScoreNumber value={baselineScore} size="lg" showDenominator />
           </div>
-          <div className="flex gap-4">
-            <dt className="w-32 text-mid-gray">Provider</dt>
-            <dd className="text-ink">
-              {(user?.app_metadata?.provider as string) ?? "—"}
-            </dd>
+          <div className="mt-2">
+            <ScoreBandLabel value={baselineScore} />
           </div>
-        </dl>
+          <p className="mt-4 text-[13px] text-mid-gray">
+            The average for all {profession.title}s. Your personal score
+            adjusts from this based on your situation.
+          </p>
+        </div>
+      </section>
+
+      {/* Why your score differs */}
+      {scoreDetail.rationale.length > 0 && (
+        <section className="mt-12">
+          <p className="eyebrow mb-3">Why your score differs</p>
+          <h2 className="font-display text-[24px] text-ink mb-4">
+            The adjustments behind your number
+          </h2>
+          <ul className="space-y-3">
+            {scoreDetail.rationale.map((line, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-3 text-[15px] text-dark-gray"
+              >
+                <span className="mt-1 w-1 h-1 rounded-full bg-cobalt flex-shrink-0" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* History placeholder */}
+      <section className="mt-16 border-t border-hairline pt-8">
+        <p className="eyebrow mb-3">Score history</p>
+        <p className="text-[14px] text-dark-gray max-w-[520px]">
+          Scores update weekly as new AI capabilities emerge and the profession
+          model is revised. Your first update will arrive next week — a chart
+          appears here once you have multiple data points.
+        </p>
       </section>
     </div>
   );
