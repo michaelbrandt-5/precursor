@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDashboardData } from "@/lib/data/user";
+import { restartOnboarding } from "@/lib/actions/onboarding";
+import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -54,12 +56,24 @@ export default async function SettingsPage() {
               }
             />
           </dl>
-          <p className="mt-4 text-[13px] text-mid-gray">
-            Editing these inputs (and a full data-export / delete-account flow)
-            lands in the next slice.
-          </p>
+          <form action={restartOnboarding} className="mt-6 pt-5 border-t border-hairline">
+            <p className="text-[14px] font-medium text-ink">
+              Update your profile
+            </p>
+            <p className="mt-1 text-[13px] text-mid-gray max-w-[480px]">
+              Retake onboarding — upload a fresh resume or LinkedIn PDF, or edit
+              your inputs directly. Your score history is preserved.
+            </p>
+            <Button type="submit" variant="ghost" size="md" className="mt-4">
+              Redo my profile →
+            </Button>
+          </form>
         </section>
       )}
+
+      <p className="mt-6 text-[13px] text-mid-gray">
+        Data export and account deletion land in the next slice.
+      </p>
     </div>
   );
 }

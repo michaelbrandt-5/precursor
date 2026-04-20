@@ -7,6 +7,7 @@ import {
   ScoreNumber,
   ScoreBandLabel,
 } from "@/components/score/ScoreNumber";
+import { ScoreScale } from "@/components/score/ScoreScale";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -84,6 +85,16 @@ export default async function DashboardPage() {
             adjusts from this based on your situation.
           </p>
         </div>
+      </section>
+
+      {/* Exposure scale */}
+      <section className="mt-12 bg-white border border-hairline rounded-[var(--radius-brand-sm)] px-8 pt-6 pb-8">
+        <p className="eyebrow mb-6">Where you fall on the exposure scale</p>
+        <ScoreScale
+          value={personalScore}
+          baseline={baselineScore}
+          baselineLabel={`${profession.title} avg`}
+        />
       </section>
 
       {/* Why your score differs */}

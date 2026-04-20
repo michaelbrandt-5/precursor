@@ -1,3 +1,4 @@
+import type Anthropic from "@anthropic-ai/sdk";
 import { anthropic, RESUME_PARSER_MODEL } from "./client";
 
 export type ParsedProfile = {
@@ -16,7 +17,7 @@ export type ParsedProfile = {
   summary: string;
 };
 
-const SYSTEM_PROMPT = `You extract structured career data from a professional's LinkedIn profile or resume text.
+const SYSTEM_PROMPT = `You extract structured career data from a professional's LinkedIn profile or resume — supplied either as text or as a PDF document.
 
 ─── Precursor Profession Taxonomy ───────────────────────────
 
@@ -44,10 +45,10 @@ Match the user to the closest profession from this list. If none is a reasonable
     · occasional = uses AI tools casually; one-off mentions
     · daily_power = AI is core to their workflow, builds AI products, references specific AI tools or models in depth
 - confidence:
-    · high = text is detailed and unambiguous
+    · high = source is detailed and unambiguous
     · medium = some inference required
-    · low = text is brief or vague; many fields are guesses
-- summary: ONE sentence describing their background, grounded in the source text. No flattery, no marketing language.
+    · low = source is brief or vague; many fields are guesses
+- summary: ONE sentence describing their background, grounded in the source. No flattery, no marketing language.
 
 Return ONLY the JSON object matching the provided schema. No prose, no preamble.`;
 
@@ -107,6 +108,45 @@ const JSON_SCHEMA = {
 
 const MIN_INPUT_CHARS = 50;
 const MAX_INPUT_CHARS = 25_000;
+const MAX_PDF_BYTES = 5_000_000;
+
+async function extractProfile(
+  userContent: string | Anthropic.Messages.ContentBlockParam[],
+): Promise<ParsedProfile> {
+  const response = await anthropic.messages.create({
+    model: RESUME_PARSER_MODEL,
+    max_tokens: 1024,
+    // Cache the (stable) taxonomy + instructions. The variable part is the
+    // user-supplied content. Cache minimum is 4096 tokens on Opus 4.7 — this
+    // prompt is under threshold today, but will kick in automatically once
+    // the taxonomy grows past it.
+    system: [
+      {
+        type: "text",
+        text: SYSTEM_PROMPT,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    output_config: {
+      format: {
+        type: "json_schema",
+        schema: JSON_SCHEMA,
+      },
+    },
+    messages: [{ role: "user", content: userContent }],
+  });
+
+  const textBlock = response.content.find((b) => b.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("Claude did not return a text block.");
+  }
+
+  try {
+    return JSON.parse(textBlock.text) as ParsedProfile;
+  } catch {
+    throw new Error("Claude returned malformed JSON.");
+  }
+}
 
 export async function parseResume(text: string): Promise<ParsedProfile> {
   const trimmed = text.trim();
@@ -122,42 +162,32 @@ export async function parseResume(text: string): Promise<ParsedProfile> {
     );
   }
 
-  const response = await anthropic.messages.create({
-    model: RESUME_PARSER_MODEL,
-    max_tokens: 1024,
-    // Cache the (stable) taxonomy + instructions. User-pasted text is the only
-    // variable part. Cache minimum is 4096 tokens on Opus 4.7 — this prompt is
-    // under that threshold, so the cache is currently a no-op but costs nothing
-    // and will kick in automatically if the taxonomy grows past the threshold.
-    system: [
-      {
-        type: "text",
-        text: SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    output_config: {
-      format: {
-        type: "json_schema",
-        schema: JSON_SCHEMA,
+  return extractProfile(`Analyze this text:\n\n${trimmed}`);
+}
+
+export async function parseResumeFromPdf(
+  base64: string,
+): Promise<ParsedProfile> {
+  // base64 → bytes conversion ratio is ~0.75
+  const estimatedBytes = Math.floor(base64.length * 0.75);
+  if (estimatedBytes > MAX_PDF_BYTES) {
+    throw new Error(
+      `PDF is too large (${(estimatedBytes / 1_000_000).toFixed(1)} MB). Keep it under ${MAX_PDF_BYTES / 1_000_000} MB.`,
+    );
+  }
+
+  return extractProfile([
+    {
+      type: "document",
+      source: {
+        type: "base64",
+        media_type: "application/pdf",
+        data: base64,
       },
     },
-    messages: [
-      {
-        role: "user",
-        content: `Analyze this text:\n\n${trimmed}`,
-      },
-    ],
-  });
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Claude did not return a text block.");
-  }
-
-  try {
-    return JSON.parse(textBlock.text) as ParsedProfile;
-  } catch {
-    throw new Error("Claude returned malformed JSON.");
-  }
+    {
+      type: "text",
+      text: "Analyze this resume or LinkedIn profile PDF and extract the structured data.",
+    },
+  ]);
 }

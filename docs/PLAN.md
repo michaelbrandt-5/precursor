@@ -12,7 +12,7 @@
 | **Access** | Fully gated. Public demo landing only. |
 | **Auth** | Google OAuth (v1). Apple Sign In deferred until iOS / Apple Dev account. |
 | **Accounts** | Individual only. Michael + Andrew (apham10@gmail.com) as initial admins. |
-| **Onboarding** | Two paths: (b) profession + skill questionnaire; (c) paste LinkedIn/resume text → Claude extracts. |
+| **Onboarding** | Primary: PDF upload (resume, or LinkedIn "More → Save to PDF" export) → Claude extracts via document block. Fallback: paste text, collapsed. Questionnaire form always shown for review/edit. **Rejected:** direct LinkedIn URL ingest — official API doesn't expose experience/skills, scraping violates ToS and gets blocked, third-party resellers are expensive and ToS-gray. Revisit only if LinkedIn opens a compliant API. |
 | **Profession** | One primary per user. Changeable. |
 | **Profession detail** | Full capability breakdown (per-capability 0–100 score, AI tool citations, narrative). |
 | **Launch surface** | 20–30 most popular white-collar professions. |

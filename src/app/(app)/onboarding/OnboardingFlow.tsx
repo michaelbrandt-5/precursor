@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { ProfessionRow } from "@/lib/supabase/types";
 import type { ParsedProfile } from "@/lib/anthropic/parseResume";
 import {
   parseResumeAction,
+  parseResumeFileAction,
   completeOnboarding,
   type CompleteOnboardingInput,
 } from "@/lib/actions/onboarding";
@@ -33,7 +34,7 @@ type FormState = {
   profession_slug: string;
   years_experience: string;
   seniority: "" | "ic" | "manager" | "director" | "exec";
-  execution_time_pct: string; // stored as string to allow empty
+  execution_time_pct: string;
   industry_vertical: string;
   ai_familiarity: "" | "never" | "occasional" | "daily_power";
 };
@@ -47,6 +48,17 @@ const EMPTY: FormState = {
   ai_familiarity: "",
 };
 
+type AutofillStatus =
+  | { kind: "idle" }
+  | { kind: "pending"; source: "file" | "text" }
+  | { kind: "error"; message: string }
+  | {
+      kind: "filled";
+      confidence: ParsedProfile["confidence"];
+      summary: string;
+      source: "file" | "text";
+    };
+
 export function OnboardingFlow({
   professions,
 }: {
@@ -54,40 +66,70 @@ export function OnboardingFlow({
 }) {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [pasteText, setPasteText] = useState("");
-  const [pasteStatus, setPasteStatus] = useState<
-    | { kind: "idle" }
-    | { kind: "pending" }
-    | { kind: "error"; message: string }
-    | { kind: "filled"; confidence: ParsedProfile["confidence"]; summary: string }
-  >({ kind: "idle" });
+  const [status, setStatus] = useState<AutofillStatus>({ kind: "idle" });
+  const [dragOver, setDragOver] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const handleAutofill = async () => {
-    if (!pasteText.trim()) return;
-    setPasteStatus({ kind: "pending" });
-    const result = await parseResumeAction(pasteText);
-    if (!result.ok) {
-      setPasteStatus({ kind: "error", message: result.error });
-      return;
-    }
-    const p = result.profile;
+  const applyParsed = (
+    p: ParsedProfile,
+    source: "file" | "text",
+  ) => {
     setForm({
       profession_slug: p.profession_slug ?? "",
       years_experience: p.years_experience?.toString() ?? "",
       seniority: p.seniority ?? "",
-      execution_time_pct: "50", // not extractable from resume text
+      execution_time_pct: "50",
       industry_vertical: p.industry_vertical ?? "",
       ai_familiarity: p.ai_familiarity ?? "",
     });
-    setPasteStatus({
+    setStatus({
       kind: "filled",
       confidence: p.confidence,
       summary: p.summary,
+      source,
     });
+  };
+
+  const handleFile = async (file: File) => {
+    if (file.type !== "application/pdf") {
+      setStatus({
+        kind: "error",
+        message: "Only PDF files are supported.",
+      });
+      return;
+    }
+    setStatus({ kind: "pending", source: "file" });
+    const fd = new FormData();
+    fd.append("file", file);
+    const result = await parseResumeFileAction(fd);
+    if (!result.ok) {
+      setStatus({ kind: "error", message: result.error });
+      return;
+    }
+    applyParsed(result.profile, "file");
+  };
+
+  const handlePaste = async () => {
+    if (!pasteText.trim()) return;
+    setStatus({ kind: "pending", source: "text" });
+    const result = await parseResumeAction(pasteText);
+    if (!result.ok) {
+      setStatus({ kind: "error", message: result.error });
+      return;
+    }
+    applyParsed(result.profile, "text");
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) void handleFile(file);
   };
 
   const canSubmit =
@@ -108,7 +150,8 @@ export function OnboardingFlow({
       seniority: form.seniority as CompleteOnboardingInput["seniority"],
       execution_time_pct: parseInt(form.execution_time_pct, 10),
       industry_vertical: form.industry_vertical,
-      ai_familiarity: form.ai_familiarity as CompleteOnboardingInput["ai_familiarity"],
+      ai_familiarity:
+        form.ai_familiarity as CompleteOnboardingInput["ai_familiarity"],
     };
     startTransition(async () => {
       const res = await completeOnboarding(payload);
@@ -118,71 +161,131 @@ export function OnboardingFlow({
     });
   };
 
+  const pending = status.kind === "pending";
+
   return (
     <div className="mt-10 space-y-10">
-      {/* Autofill section */}
+      {/* Autofill */}
       <section className="border border-hairline bg-white rounded-[var(--radius-brand-sm)] p-6">
         <p className="eyebrow mb-2">Autofill (optional)</p>
         <h2 className="font-display text-[22px] text-ink">
-          Paste your LinkedIn or resume
+          Upload your resume
         </h2>
         <p className="mt-2 text-[14px] text-mid-gray">
-          We&apos;ll use Claude to extract your profession, experience, and
-          skills. You&apos;ll review and edit everything before saving.
+          Claude reads your PDF and fills in the form below. You review and edit
+          everything before saving.
         </p>
-        <textarea
-          value={pasteText}
-          onChange={(e) => setPasteText(e.target.value)}
-          placeholder="Paste your LinkedIn About + experience, or a plain-text resume..."
-          className="mt-4 w-full min-h-[160px] p-3 text-[14px] font-sans border border-hairline rounded-[var(--radius-brand-sm)] focus:outline-none focus:border-cobalt resize-y"
-        />
-        <div className="mt-3 flex items-center gap-3 flex-wrap">
+
+        {/* Dropzone */}
+        <label
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          className={`mt-4 flex flex-col items-center justify-center gap-1 cursor-pointer border-2 border-dashed rounded-[var(--radius-brand-sm)] px-6 py-10 text-center transition-colors ${
+            dragOver
+              ? "border-cobalt bg-cobalt-pale"
+              : "border-hairline hover:border-light-gray"
+          } ${pending ? "opacity-60 pointer-events-none" : ""}`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            className="sr-only"
+            disabled={pending}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void handleFile(f);
+              e.target.value = "";
+            }}
+          />
+          <span className="font-display text-[18px] text-ink">
+            {pending && status.source === "file"
+              ? "Analyzing your PDF…"
+              : "Drop your resume PDF here"}
+          </span>
+          <span className="text-[13px] text-mid-gray">
+            or <span className="text-cobalt underline">click to browse</span>{" "}
+            · max 5 MB
+          </span>
+        </label>
+
+        {/* LinkedIn helper */}
+        <p className="mt-4 text-[13px] text-dark-gray leading-relaxed">
+          <span className="font-medium">Don&apos;t have a resume handy?</span>{" "}
+          Open your LinkedIn profile, click{" "}
+          <span className="font-medium">More → Save to PDF</span>, then upload
+          the downloaded file here.
+        </p>
+
+        {/* Status messages */}
+        {status.kind === "filled" && (
+          <div className="mt-5 flex items-start gap-2 flex-wrap text-[13px] text-dark-gray">
+            <span
+              className="inline-block px-2 py-0.5 rounded-[2px] text-[11px] font-medium"
+              style={{
+                background:
+                  status.confidence === "high"
+                    ? "var(--color-score-low-bg)"
+                    : status.confidence === "medium"
+                      ? "var(--color-score-medium-bg)"
+                      : "var(--color-score-high-bg)",
+                color:
+                  status.confidence === "high"
+                    ? "var(--color-score-low)"
+                    : status.confidence === "medium"
+                      ? "var(--color-score-medium)"
+                      : "var(--color-score-high)",
+              }}
+            >
+              {status.confidence} confidence
+            </span>
+            <span>{status.summary}</span>
+          </div>
+        )}
+        {status.kind === "error" && (
+          <p
+            role="alert"
+            className="mt-5 text-[13px] text-score-high bg-score-high-bg px-3 py-2 rounded-[2px]"
+          >
+            {status.message}
+          </p>
+        )}
+
+        {/* Fallback: paste text */}
+        <details className="mt-6 border-t border-hairline pt-4 group">
+          <summary className="cursor-pointer text-[13px] text-mid-gray hover:text-cobalt select-none list-none flex items-center gap-1">
+            <span className="transition-transform group-open:rotate-90">
+              ›
+            </span>
+            Or paste LinkedIn / resume text instead
+          </summary>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            placeholder="Paste your LinkedIn About + experience, or a plain-text resume..."
+            className="mt-3 w-full min-h-[140px] p-3 text-[14px] font-sans border border-hairline rounded-[var(--radius-brand-sm)] focus:outline-none focus:border-cobalt resize-y"
+          />
           <Button
             type="button"
             variant="ghost"
             size="md"
-            onClick={handleAutofill}
-            disabled={pasteStatus.kind === "pending" || !pasteText.trim()}
+            onClick={handlePaste}
+            disabled={pending || !pasteText.trim()}
+            className="mt-3"
           >
-            {pasteStatus.kind === "pending"
-              ? "Analyzing..."
-              : "Autofill from text"}
+            {pending && status.source === "text"
+              ? "Analyzing…"
+              : "Analyze text"}
           </Button>
-          {pasteStatus.kind === "filled" && (
-            <span className="text-[13px] text-dark-gray">
-              <span
-                className="inline-block px-2 py-0.5 rounded-[2px] mr-2 text-[11px] font-medium"
-                style={{
-                  background:
-                    pasteStatus.confidence === "high"
-                      ? "var(--color-score-low-bg)"
-                      : pasteStatus.confidence === "medium"
-                        ? "var(--color-score-medium-bg)"
-                        : "var(--color-score-high-bg)",
-                  color:
-                    pasteStatus.confidence === "high"
-                      ? "var(--color-score-low)"
-                      : pasteStatus.confidence === "medium"
-                        ? "var(--color-score-medium)"
-                        : "var(--color-score-high)",
-                }}
-              >
-                {pasteStatus.confidence} confidence
-              </span>
-              {pasteStatus.summary}
-            </span>
-          )}
-          {pasteStatus.kind === "error" && (
-            <span className="text-[13px] text-score-high">
-              {pasteStatus.message}
-            </span>
-          )}
-        </div>
+        </details>
       </section>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Profession */}
         <Field
           label="Your profession"
           hint="Pick the closest match — you can change this later."
@@ -202,7 +305,6 @@ export function OnboardingFlow({
           </select>
         </Field>
 
-        {/* Years experience */}
         <Field label="Years of experience">
           <input
             type="number"
@@ -215,7 +317,6 @@ export function OnboardingFlow({
           />
         </Field>
 
-        {/* Seniority */}
         <Field label="Seniority">
           <RadioGroup
             name="seniority"
@@ -230,7 +331,6 @@ export function OnboardingFlow({
           />
         </Field>
 
-        {/* Execution time */}
         <Field
           label="Time split"
           hint="How much of your week is hands-on execution vs. strategic/managerial work?"
@@ -251,7 +351,6 @@ export function OnboardingFlow({
           </div>
         </Field>
 
-        {/* Industry */}
         <Field label="Industry">
           <select
             required
@@ -268,7 +367,6 @@ export function OnboardingFlow({
           </select>
         </Field>
 
-        {/* AI familiarity */}
         <Field label="How often do you use AI tools in your work?">
           <RadioGroup
             name="ai_familiarity"

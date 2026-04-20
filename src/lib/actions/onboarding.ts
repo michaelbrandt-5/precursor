@@ -3,12 +3,18 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { parseResume, type ParsedProfile } from "@/lib/anthropic/parseResume";
+import {
+  parseResume,
+  parseResumeFromPdf,
+  type ParsedProfile,
+} from "@/lib/anthropic/parseResume";
 import { computePersonalScore } from "@/lib/scoring";
 
 export type ParseResumeResult =
   | { ok: true; profile: ParsedProfile }
   | { ok: false; error: string };
+
+const MAX_UPLOAD_BYTES = 5_000_000;
 
 export async function parseResumeAction(
   text: string,
@@ -21,6 +27,48 @@ export async function parseResumeAction(
 
   try {
     const profile = await parseResume(text);
+    return { ok: true, profile };
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Failed to parse resume. Try again.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function parseResumeFileAction(
+  formData: FormData,
+): Promise<ParseResumeResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { ok: false, error: "No file provided." };
+  }
+  if (file.type !== "application/pdf") {
+    return { ok: false, error: "Only PDF files are supported." };
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return {
+      ok: false,
+      error: `PDF is too large (${(file.size / 1_000_000).toFixed(1)} MB). Keep it under ${MAX_UPLOAD_BYTES / 1_000_000} MB.`,
+    };
+  }
+  if (file.size === 0) {
+    return { ok: false, error: "That file is empty." };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  if (!buffer.subarray(0, 4).equals(Buffer.from("%PDF"))) {
+    return { ok: false, error: "That file doesn't look like a PDF." };
+  }
+  const base64 = buffer.toString("base64");
+
+  try {
+    const profile = await parseResumeFromPdf(base64);
     return { ok: true, profile };
   } catch (e) {
     const message =
@@ -97,4 +145,24 @@ export async function completeOnboarding(input: CompleteOnboardingInput) {
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
+}
+
+export async function restartOnboarding(): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in");
+
+  const { error } = await supabase
+    .from("users")
+    .update({ onboarded_at: null })
+    .eq("id", user.id);
+  if (error) {
+    throw new Error(`Couldn't reset onboarding: ${error.message}`);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/settings");
+  redirect("/onboarding");
 }
