@@ -64,6 +64,9 @@ export async function completeOnboarding(input: CompleteOnboardingInput) {
     industryVertical: input.industry_vertical,
   });
 
+  // Write in order: profile → score snapshot → flip onboarded_at LAST.
+  // If anything earlier fails, onboarded_at stays null and the middleware
+  // sends the user back to /onboarding on retry (clean state).
   const { error: profErr } = await supabase.from("user_profile").upsert({
     user_id: user.id,
     years_experience: input.years_experience,
@@ -72,18 +75,7 @@ export async function completeOnboarding(input: CompleteOnboardingInput) {
     industry_vertical: input.industry_vertical,
     skill_inputs: { ai_familiarity: input.ai_familiarity },
   });
-
   if (profErr) return { ok: false as const, error: profErr.message };
-
-  const { error: userErr } = await supabase
-    .from("users")
-    .update({
-      primary_profession_id: profession.id,
-      onboarded_at: new Date().toISOString(),
-    })
-    .eq("id", user.id);
-
-  if (userErr) return { ok: false as const, error: userErr.message };
 
   const { error: scoreErr } = await supabase.from("user_scores").insert({
     user_id: user.id,
@@ -92,8 +84,16 @@ export async function completeOnboarding(input: CompleteOnboardingInput) {
     baseline_score: score.baseline,
     delta: score.delta,
   });
-
   if (scoreErr) return { ok: false as const, error: scoreErr.message };
+
+  const { error: userErr } = await supabase
+    .from("users")
+    .update({
+      primary_profession_id: profession.id,
+      onboarded_at: new Date().toISOString(),
+    })
+    .eq("id", user.id);
+  if (userErr) return { ok: false as const, error: userErr.message };
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
