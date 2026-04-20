@@ -40,7 +40,7 @@ insert into public.ai_tools (name, vendor, url, description, capabilities_affect
 on conflict do nothing;
 
 
--- ─── Professions (5 to start) ──────────────────────────────────────
+-- ─── Professions (25 total) ────────────────────────────────────────
 
 insert into public.professions (slug, title, sector, category, summary, body_md, baseline_score, published)
 values
@@ -102,6 +102,246 @@ Legal work is being transformed by AI more deeply than the headlines suggest. Co
 
 Design is undergoing rapid change. First-pass UI mockups, iteration on brand directions, image generation, and pattern-matching against competitors can all be AI-augmented. Taste, judgment about user needs, and cross-functional leadership in product decisions remain deeply human. Roles concentrated in production work are most exposed; roles that shape product direction are less so.',
     68,
+    true
+  ),
+  (
+    'translator',
+    'Translator',
+    'Professional Services',
+    'Language',
+    'Converts text and speech between languages for business, legal, and media contexts.',
+    '### Overview
+
+Translation is among the most AI-exposed professions. Modern LLMs produce fluent translations across major language pairs, often at near-human quality for general business content. Specialized domains (legal filings, literary translation, simultaneous interpretation) retain more human value, but the volume of routine translation work has shifted decisively toward AI pipelines with human review.',
+    88,
+    true
+  ),
+  (
+    'copywriter',
+    'Copywriter',
+    'Creative',
+    'Writing',
+    'Writes marketing, advertising, and brand copy to persuade specific audiences.',
+    '### Overview
+
+Copywriting is one of the most transformed professions. Email sequences, ad copy, social posts, and web copy are now overwhelmingly AI-drafted with human editing. Brand voice judgment, strategy, and concepting remain human-led, but the pure output of words-on-page is heavily augmented.',
+    86,
+    true
+  ),
+  (
+    'paralegal',
+    'Paralegal',
+    'Legal',
+    'Professional Services',
+    'Supports attorneys with document review, legal research, and case preparation.',
+    '### Overview
+
+Paralegal work — historically focused on document review, discovery production, and drafting routine filings — is deeply AI-exposed. Harvey, contract analyzers, and general LLMs handle much of the volume work. Client-facing coordination and complex case management remain human.',
+    82,
+    true
+  ),
+  (
+    'tax-preparer',
+    'Tax Preparer',
+    'Finance',
+    'Tax',
+    'Prepares individual and business tax returns and advises on compliance.',
+    '### Overview
+
+Routine tax preparation is highly AI-exposed: return logic is well-defined and machine-readable, and AI can surface deductions and flag inconsistencies at scale. Complex multi-entity planning, audit representation, and client advisory retain human value.',
+    82,
+    true
+  ),
+  (
+    'accountant',
+    'Accountant',
+    'Finance',
+    'Accounting',
+    'Records financial transactions, prepares statements, and ensures reporting compliance.',
+    '### Overview
+
+Bookkeeping, reconciliations, and financial statement drafting are strongly augmented by AI. Audit judgment, GAAP/IFRS edge cases, and forensic accounting retain more human value. Roles concentrated in transaction processing are most exposed.',
+    78,
+    true
+  ),
+  (
+    'data-analyst',
+    'Data Analyst',
+    'Technology',
+    'Analytics',
+    'Turns raw data into insights through querying, modeling, and visualization.',
+    '### Overview
+
+SQL generation, dashboard building, and pattern identification are now AI-first workflows. Data storytelling — framing what matters and why, for a specific decision — remains the harder human skill. Routine analyst work is heavily augmented; principal/staff analyst judgment less so.',
+    78,
+    true
+  ),
+  (
+    'sales-development-rep',
+    'Sales Development Rep',
+    'Sales',
+    'SDR',
+    'Prospects and qualifies inbound and outbound leads for account executives.',
+    '### Overview
+
+SDR work — personalized outreach, objection handling, discovery-call summaries — is heavily AI-augmented. Personalization at scale and CRM hygiene are effectively machine-driven. Tonal judgment and deep qualifying conversations remain human.',
+    76,
+    true
+  ),
+  (
+    'journalist',
+    'Journalist',
+    'Media',
+    'Editorial',
+    'Investigates, reports, and writes news and feature stories for an audience.',
+    '### Overview
+
+AI speeds research, transcription, and first-draft writing significantly. Investigative journalism, source cultivation, and editorial judgment remain strongly human. Beat reporting and aggregation-heavy work are most exposed.',
+    72,
+    true
+  ),
+  (
+    'executive-assistant',
+    'Executive Assistant',
+    'Operations',
+    'Administrative',
+    'Manages schedules, communications, and logistics for senior executives.',
+    '### Overview
+
+Calendar management, email triage, meeting prep, and travel coordination are increasingly AI-handled. Trusted judgment, discretion with sensitive information, and relationship management with stakeholders remain human.',
+    72,
+    true
+  ),
+  (
+    'recruiter',
+    'Recruiter',
+    'Human Resources',
+    'Talent Acquisition',
+    'Sources, screens, and manages candidates through hiring pipelines.',
+    '### Overview
+
+Sourcing, resume screening, scheduling, and candidate outreach are strongly AI-augmented. Closing judgment, candidate experience nuance, and hiring manager partnership remain human. High-volume agency work is most exposed.',
+    70,
+    true
+  ),
+  (
+    'product-marketing-manager',
+    'Product Marketing Manager',
+    'Marketing',
+    'Product',
+    'Positions products, launches features, and equips sales and marketing teams.',
+    '### Overview
+
+Positioning drafts, competitive analysis, sales enablement collateral, and launch content are heavily AI-augmented. Strategic positioning calls, customer research synthesis, and cross-functional orchestration remain human.',
+    68,
+    true
+  ),
+  (
+    'management-consultant',
+    'Management Consultant',
+    'Consulting',
+    'Strategy',
+    'Advises organizations on strategy, operations, and organizational change.',
+    '### Overview
+
+Slide production, research synthesis, and framework application are heavily AI-augmented. Client relationships, executive-level judgment, and change management remain human. Junior consulting work is significantly more exposed than partner/director work.',
+    68,
+    true
+  ),
+  (
+    'hr-generalist',
+    'HR Generalist',
+    'Human Resources',
+    'People Operations',
+    'Handles day-to-day HR operations: policy, onboarding, employee relations, benefits.',
+    '### Overview
+
+Policy drafting, onboarding flows, and routine employee inquiries are strongly AI-augmented. Employee relations judgment, sensitive investigations, and culture work remain human.',
+    58,
+    true
+  ),
+  (
+    'product-manager',
+    'Product Manager',
+    'Technology',
+    'Product',
+    'Sets product direction by aligning user needs, business goals, and engineering capacity.',
+    '### Overview
+
+PRDs, user research synthesis, and roadmap communication are significantly AI-augmented. Prioritization judgment under uncertainty, stakeholder alignment, and product intuition remain human.',
+    58,
+    true
+  ),
+  (
+    'customer-success-manager',
+    'Customer Success Manager',
+    'Technology',
+    'Post-Sales',
+    'Drives customer retention, expansion, and product adoption post-sale.',
+    '### Overview
+
+Account health monitoring, QBR prep, and email communication are strongly augmented. Customer relationships, empathy-led conversations, and nuanced escalations remain human.',
+    56,
+    true
+  ),
+  (
+    'project-manager',
+    'Project Manager',
+    'Operations',
+    'Delivery',
+    'Plans, coordinates, and drives projects to on-time, on-scope completion.',
+    '### Overview
+
+Status reporting, risk tracking, and meeting documentation are heavily augmented. Stakeholder politics, unblocking judgment, and team motivation remain human.',
+    56,
+    true
+  ),
+  (
+    'ux-researcher',
+    'UX Researcher',
+    'Technology',
+    'Research',
+    'Studies user behavior and needs to inform product and design decisions.',
+    '### Overview
+
+Interview transcription, theme synthesis, and study summaries are strongly augmented. Research design, interview facilitation, and stakeholder influence remain human.',
+    50,
+    true
+  ),
+  (
+    'architect',
+    'Architect',
+    'Architecture',
+    'Design',
+    'Designs buildings and spaces for functional, structural, and aesthetic use.',
+    '### Overview
+
+Drafting, renderings, and code research are increasingly AI-augmented. Site visits, client relationships, permitting negotiations, and creative vision remain human. Licensed work with structural liability is structurally less exposed.',
+    42,
+    true
+  ),
+  (
+    'teacher',
+    'Teacher',
+    'Education',
+    'K-12',
+    'Instructs students, designs curriculum, and supports learning in school settings.',
+    '### Overview
+
+Lesson planning, worksheets, and grading assistance are augmented. Classroom management, student mentorship, and in-person pedagogy remain deeply human.',
+    36,
+    true
+  ),
+  (
+    'therapist',
+    'Therapist / Counselor',
+    'Healthcare',
+    'Mental Health',
+    'Provides talk therapy and counseling to support mental health and wellbeing.',
+    '### Overview
+
+Notes, session summaries, and administrative work are augmented. The core therapeutic relationship, empathy, and clinical judgment remain deeply human and heavily regulated.',
+    26,
     true
   )
 on conflict (slug) do update set

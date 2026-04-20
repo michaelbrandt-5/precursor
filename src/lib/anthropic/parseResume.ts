@@ -1,14 +1,42 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { anthropic, RESUME_PARSER_MODEL } from "./client";
 
+// Keep this list in sync with the `supabase/seed.sql` professions block and
+// the JSON_SCHEMA enum below. Adding or removing a profession requires all
+// three to agree or the resume parser will return slugs that don't exist in
+// the DB (causing onboarding to fail downstream).
+export const PROFESSION_SLUGS = [
+  "software-engineer",
+  "financial-analyst",
+  "marketer",
+  "lawyer",
+  "designer",
+  "translator",
+  "copywriter",
+  "paralegal",
+  "tax-preparer",
+  "accountant",
+  "data-analyst",
+  "sales-development-rep",
+  "journalist",
+  "executive-assistant",
+  "recruiter",
+  "product-marketing-manager",
+  "management-consultant",
+  "hr-generalist",
+  "product-manager",
+  "customer-success-manager",
+  "project-manager",
+  "ux-researcher",
+  "architect",
+  "teacher",
+  "therapist",
+] as const;
+
+export type ProfessionSlug = (typeof PROFESSION_SLUGS)[number];
+
 export type ParsedProfile = {
-  profession_slug:
-    | "software-engineer"
-    | "financial-analyst"
-    | "marketer"
-    | "lawyer"
-    | "designer"
-    | null;
+  profession_slug: ProfessionSlug | null;
   years_experience: number | null;
   seniority: "ic" | "manager" | "director" | "exec" | null;
   industry_vertical: string | null;
@@ -21,15 +49,33 @@ const SYSTEM_PROMPT = `You extract structured career data from a professional's 
 
 ─── Precursor Profession Taxonomy ───────────────────────────
 
-Precursor tracks the following five professions at launch:
+Precursor tracks the following 25 professions. Match the user to the closest one. If none is a reasonable fit (e.g., Nurse, Electrician, Police Officer, Chef), return null.
 
 - software-engineer · Software Engineer — designs, builds, and maintains software systems; titles include SWE, Developer, Engineering Manager, Staff Engineer
 - financial-analyst · Financial Analyst — builds financial models, analyzes performance, advises on investment decisions; titles include FP&A, Investment Banker, Equity Research, Credit Analyst
-- marketer · Marketer — plans and executes campaigns to reach target audiences; titles include Marketing Manager, Growth, Brand, Demand Gen, Content, Product Marketing
-- lawyer · Lawyer — advises clients on legal matters, drafts documents, represents in disputes; titles include Attorney, Associate, Counsel, Partner, General Counsel
-- designer · Designer — creates visual and interactive experiences across digital and physical products; titles include Product Designer, UX Designer, Visual Designer, Creative Director
-
-Match the user to the closest profession from this list. If none is a reasonable fit (e.g., Nurse, Teacher, Electrician), return null.
+- marketer · Marketer — plans and executes campaigns to reach target audiences; titles include Marketing Manager, Growth, Brand, Demand Gen, Content. Use product-marketing-manager if they specifically own product positioning/launches.
+- product-marketing-manager · Product Marketing Manager — positions products, launches features, equips sales; titles include PMM, Product Marketing
+- copywriter · Copywriter — writes marketing, advertising, and brand copy; titles include Copywriter, Brand Writer, Senior Writer (for marketing orgs)
+- journalist · Journalist — investigates, reports, and writes news/feature stories; titles include Reporter, Staff Writer, Editor (for news orgs), Correspondent
+- lawyer · Lawyer — practices law across drafting, counsel, and litigation; titles include Attorney, Associate, Counsel, Partner, General Counsel
+- paralegal · Paralegal — supports attorneys with research, review, case prep; titles include Paralegal, Legal Assistant, Legal Specialist
+- designer · Designer — creates visual/interactive product and brand experiences; titles include Product Designer, UX Designer, Visual Designer, Creative Director
+- ux-researcher · UX Researcher — studies user behavior to inform product decisions; titles include User Researcher, UXR, Design Researcher
+- product-manager · Product Manager — sets product direction aligning users, business, engineering; titles include PM, Product Lead, Group PM
+- data-analyst · Data Analyst — turns data into insights via querying, modeling, viz; titles include Data Analyst, BI Analyst, Analytics Engineer (if primarily analysis-focused)
+- accountant · Accountant — records transactions, prepares statements, ensures compliance; titles include Accountant, Bookkeeper, Staff Accountant, Controller (for smaller entities)
+- tax-preparer · Tax Preparer — prepares tax returns and advises on compliance; titles include Tax Preparer, Tax Associate, Enrolled Agent
+- management-consultant · Management Consultant — advises on strategy, operations, change; titles include Consultant, Senior Consultant, Engagement Manager, Principal
+- recruiter · Recruiter — sources, screens, and manages candidates; titles include Recruiter, Talent Acquisition, Technical Recruiter, Sourcer
+- hr-generalist · HR Generalist — handles policy, employee relations, benefits, onboarding; titles include HR Generalist, HR Manager, HRBP, People Operations
+- sales-development-rep · Sales Development Rep — prospects and qualifies leads for AEs; titles include SDR, BDR, Sales Development, Inside Sales (prospecting-focused)
+- customer-success-manager · Customer Success Manager — drives retention, expansion, adoption post-sale; titles include CSM, Customer Success, Account Manager (if post-sale focused)
+- project-manager · Project Manager — plans and drives projects to completion; titles include Project Manager, Program Manager, Delivery Manager, Scrum Master
+- executive-assistant · Executive Assistant — manages schedules, communications, logistics for execs; titles include EA, Executive Assistant, Chief of Staff (for junior-level)
+- translator · Translator — converts text/speech between languages; titles include Translator, Interpreter, Localization Specialist
+- architect · Architect — designs buildings and physical spaces; titles include Architect, Licensed Architect, Project Architect. Note: ONLY building architects — do NOT match software "architects" (those are software-engineer).
+- teacher · Teacher — instructs K-12 students in schools; titles include Teacher, K-12 Educator, Elementary/Middle/High School Teacher
+- therapist · Therapist / Counselor — provides talk therapy and mental health counseling; titles include Therapist, Counselor, LCSW, LMFT, Psychologist (clinical practice)
 
 ─── Extraction Rules ────────────────────────────────────────
 
@@ -59,13 +105,7 @@ const JSON_SCHEMA = {
       anyOf: [
         {
           type: "string",
-          enum: [
-            "software-engineer",
-            "financial-analyst",
-            "marketer",
-            "lawyer",
-            "designer",
-          ],
+          enum: [...PROFESSION_SLUGS],
         },
         { type: "null" },
       ],
