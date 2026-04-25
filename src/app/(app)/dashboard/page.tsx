@@ -8,6 +8,7 @@ import {
   ScoreBandLabel,
 } from "@/components/score/ScoreNumber";
 import { ScoreScale } from "@/components/score/ScoreScale";
+import { ScoreCounterfactual } from "@/components/score/ScoreCounterfactual";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -117,6 +118,29 @@ export default async function DashboardPage() {
           </ul>
         </section>
       )}
+
+      {/* Counterfactual — what-if sliders */}
+      <ScoreCounterfactual
+        baseline={baselineScore}
+        industryVertical={profile.industry_vertical}
+        current={{
+          seniority:
+            (profile.seniority as
+              | "ic"
+              | "manager"
+              | "director"
+              | "exec"
+              | null) ?? "ic",
+          executionTimePct: profile.execution_time_pct ?? 50,
+          aiFamiliarity:
+            (((profile.skill_inputs as { ai_familiarity?: string })
+              ?.ai_familiarity as
+              | "never"
+              | "occasional"
+              | "daily_power"
+              | undefined) ?? "occasional"),
+        }}
+      />
 
       {/* History placeholder */}
       <section className="mt-16 border-t border-hairline pt-8">
