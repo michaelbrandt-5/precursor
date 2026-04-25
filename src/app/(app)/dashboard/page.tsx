@@ -10,6 +10,7 @@ import {
 import { ScoreScale } from "@/components/score/ScoreScale";
 import { ScoreCounterfactual } from "@/components/score/ScoreCounterfactual";
 import { CapabilityHeatMap } from "@/components/score/CapabilityHeatMap";
+import { AdjacentProfessions } from "@/components/score/AdjacentProfessions";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -19,7 +20,14 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
   if (!data) redirect("/sign-in");
 
-  const { user, profile, profession, latestScore, capabilities } = data;
+  const {
+    user,
+    profile,
+    profession,
+    latestScore,
+    capabilities,
+    lowerExposureAdjacents,
+  } = data;
 
   // Not onboarded yet → send them to onboarding
   if (!user.onboarded_at || !profession || !profile) redirect("/onboarding");
@@ -147,6 +155,12 @@ export default async function DashboardPage() {
               | "daily_power"
               | undefined) ?? "occasional"),
         }}
+      />
+
+      {/* Adjacent professions — lateral moves with lower exposure */}
+      <AdjacentProfessions
+        currentProfession={profession}
+        candidates={lowerExposureAdjacents}
       />
 
       {/* History placeholder */}
