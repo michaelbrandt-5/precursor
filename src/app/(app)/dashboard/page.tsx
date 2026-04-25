@@ -9,6 +9,7 @@ import {
 } from "@/components/score/ScoreNumber";
 import { ScoreScale } from "@/components/score/ScoreScale";
 import { ScoreCounterfactual } from "@/components/score/ScoreCounterfactual";
+import { CapabilityHeatMap } from "@/components/score/CapabilityHeatMap";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -18,7 +19,7 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
   if (!data) redirect("/sign-in");
 
-  const { user, profile, profession, latestScore } = data;
+  const { user, profile, profession, latestScore, capabilities } = data;
 
   // Not onboarded yet → send them to onboarding
   if (!user.onboarded_at || !profession || !profile) redirect("/onboarding");
@@ -118,6 +119,12 @@ export default async function DashboardPage() {
           </ul>
         </section>
       )}
+
+      {/* Capability heat map — where AI intersects your role */}
+      <CapabilityHeatMap
+        professionTitle={profession.title}
+        capabilities={capabilities}
+      />
 
       {/* Counterfactual — what-if sliders */}
       <ScoreCounterfactual
