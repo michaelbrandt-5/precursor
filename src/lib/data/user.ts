@@ -6,8 +6,12 @@ import type {
   ProfessionRow,
   ProfessionCapabilityRow,
   CapabilityRow,
+  AiToolRow,
 } from "@/lib/supabase/types";
 import { ADJACENCIES } from "./adjacencies";
+
+const HIGH_EXPOSURE_THRESHOLD = 61;
+const MAX_TOOLS = 4;
 
 export type ProfessionCapabilityWithName = ProfessionCapabilityRow & {
   capability: CapabilityRow;
@@ -26,6 +30,16 @@ export type DashboardData = {
    * role with no lower-scoring adjacents.
    */
   lowerExposureAdjacents: ProfessionRow[];
+  /**
+   * AI tools shaping the user's high-exposure capabilities, ranked by how
+   * many of those capabilities the tool affects. Each tool also carries
+   * `relevance` — the count of overlapping capabilities — so the UI can
+   * communicate "covers 3 of your 6 capabilities."
+   */
+  relevantTools: (AiToolRow & {
+    relevance: number;
+    matchedSlugs: string[];
+  })[];
 };
 
 export async function getDashboardData(): Promise<DashboardData | null> {
@@ -93,14 +107,43 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       : Promise.resolve({ data: [] as ProfessionRow[] }),
   ]);
 
+  const capabilities =
+    (capabilitiesResult.data as ProfessionCapabilityWithName[] | null) ?? [];
+
+  // Tools relevant to the user's role: any tool whose `capabilities_affected`
+  // overlaps the user's high-exposure capability slugs. Ranked by overlap
+  // count so the most-leverage tools surface first.
+  const highExposureSlugs = capabilities
+    .filter((c) => (c.exposure_score ?? 0) >= HIGH_EXPOSURE_THRESHOLD)
+    .map((c) => c.capability.slug);
+
+  let relevantTools: DashboardData["relevantTools"] = [];
+  if (highExposureSlugs.length > 0) {
+    const toolsResult = await supabase
+      .from("ai_tools")
+      .select("*")
+      .overlaps("capabilities_affected", highExposureSlugs);
+
+    const tools = (toolsResult.data as AiToolRow[] | null) ?? [];
+    relevantTools = tools
+      .map((t) => {
+        const affected = t.capabilities_affected ?? [];
+        const matched = affected.filter((s) => highExposureSlugs.includes(s));
+        return { ...t, relevance: matched.length, matchedSlugs: matched };
+      })
+      .filter((t) => t.relevance > 0)
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, MAX_TOOLS);
+  }
+
   return {
     user: user as UserRow,
     profile: (profileResult.data as UserProfileRow | null) ?? null,
     profession,
     latestScore: (scoreResult.data as UserScoreRow | null) ?? null,
-    capabilities:
-      (capabilitiesResult.data as ProfessionCapabilityWithName[] | null) ?? [],
+    capabilities,
     lowerExposureAdjacents:
       (adjacentsResult.data as ProfessionRow[] | null) ?? [],
+    relevantTools,
   };
 }

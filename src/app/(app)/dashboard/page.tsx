@@ -11,6 +11,7 @@ import { ScoreScale } from "@/components/score/ScoreScale";
 import { ScoreCounterfactual } from "@/components/score/ScoreCounterfactual";
 import { CapabilityHeatMap } from "@/components/score/CapabilityHeatMap";
 import { AdjacentProfessions } from "@/components/score/AdjacentProfessions";
+import { AiToolsToLearn } from "@/components/score/AiToolsToLearn";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -27,6 +28,7 @@ export default async function DashboardPage() {
     latestScore,
     capabilities,
     lowerExposureAdjacents,
+    relevantTools,
   } = data;
 
   // Not onboarded yet → send them to onboarding
@@ -155,6 +157,22 @@ export default async function DashboardPage() {
               | "daily_power"
               | undefined) ?? "occasional"),
         }}
+      />
+
+      {/* Tools to ramp up on, ranked by relevance to high-exposure capabilities */}
+      <AiToolsToLearn
+        tools={relevantTools}
+        totalHighExposureCapabilities={
+          capabilities.filter((c) => (c.exposure_score ?? 0) >= 61).length
+        }
+        aiFamiliarity={
+          ((profile.skill_inputs as { ai_familiarity?: string })
+            ?.ai_familiarity as
+            | "never"
+            | "occasional"
+            | "daily_power"
+            | undefined) ?? null
+        }
       />
 
       {/* Adjacent professions — lateral moves with lower exposure */}
