@@ -12,6 +12,7 @@ import { ScoreCounterfactual } from "@/components/score/ScoreCounterfactual";
 import { CapabilityHeatMap } from "@/components/score/CapabilityHeatMap";
 import { AdjacentProfessions } from "@/components/score/AdjacentProfessions";
 import { AiToolsToLearn } from "@/components/score/AiToolsToLearn";
+import { ScoreHistory } from "@/components/score/ScoreHistory";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -26,6 +27,7 @@ export default async function DashboardPage() {
     profile,
     profession,
     latestScore,
+    scoreHistory,
     capabilities,
     lowerExposureAdjacents,
     relevantTools,
@@ -181,15 +183,8 @@ export default async function DashboardPage() {
         candidates={lowerExposureAdjacents}
       />
 
-      {/* History placeholder */}
-      <section className="mt-16 border-t border-hairline pt-8">
-        <p className="eyebrow mb-3">Score history</p>
-        <p className="text-[14px] text-dark-gray max-w-[520px]">
-          Scores update weekly as new AI capabilities emerge and the profession
-          model is revised. Your first update will arrive next week — a chart
-          appears here once you have multiple data points.
-        </p>
-      </section>
+      {/* Score history — sparkline of weekly recompute snapshots */}
+      <ScoreHistory history={scoreHistory} />
     </div>
   );
 }

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/keepalive",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-scores",
+      "schedule": "0 13 * * 1"
     }
   ]
 }

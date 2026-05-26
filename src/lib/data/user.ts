@@ -22,6 +22,12 @@ export type DashboardData = {
   profile: UserProfileRow | null;
   profession: ProfessionRow | null;
   latestScore: UserScoreRow | null;
+  /**
+   * Full score history for the user, oldest → newest. Each row is one
+   * snapshot inserted either by the weekly recompute cron or by an
+   * onboarding/re-do-profile event. Used to render the dashboard sparkline.
+   */
+  scoreHistory: UserScoreRow[];
   capabilities: ProfessionCapabilityWithName[];
   /**
    * Lateral-move candidates: editorially-curated adjacent professions
@@ -56,7 +62,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     .maybeSingle();
   if (!user) return null;
 
-  const [profileResult, scoreResult, professionResult] = await Promise.all([
+  const [profileResult, historyResult, professionResult] = await Promise.all([
     supabase
       .from("user_profile")
       .select("*")
@@ -66,9 +72,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       .from("user_scores")
       .select("*")
       .eq("user_id", authUser.id)
-      .order("computed_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .order("computed_at", { ascending: true }),
     user.primary_profession_id
       ? supabase
           .from("professions")
@@ -77,6 +81,11 @@ export async function getDashboardData(): Promise<DashboardData | null> {
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+
+  const scoreHistory =
+    (historyResult.data as UserScoreRow[] | null) ?? [];
+  const latestScore =
+    scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1] : null;
 
   const profession = (professionResult.data as ProfessionRow | null) ?? null;
 
@@ -140,7 +149,8 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     user: user as UserRow,
     profile: (profileResult.data as UserProfileRow | null) ?? null,
     profession,
-    latestScore: (scoreResult.data as UserScoreRow | null) ?? null,
+    latestScore,
+    scoreHistory,
     capabilities,
     lowerExposureAdjacents:
       (adjacentsResult.data as ProfessionRow[] | null) ?? [],
